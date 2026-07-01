@@ -24,3 +24,15 @@ def add_entry(entry):
     entries = load_log()
     entries.append(entry)
     save_log(entries)
+
+
+def update_entry(content_id, appeal_reason):
+
+    entries = load_log()
+
+    for entry in entries:
+        if entry["content_id"] == content_id:
+            entry["status"] = "under_review"
+            entry["appeal_reasoning"] = appeal_reason
+
+    save_log(entries)

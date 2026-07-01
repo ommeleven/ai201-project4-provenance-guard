@@ -1,9 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from audit import add_entry, load_log
+from audit import add_entry, load_log, update_entry
 from datetime import datetime
 import uuid
+from detector import llm_detector
+from heuristics import heuristic_detector
+from confidence import combine_scores
+from labels import generate_label
+
 
 app = Flask(__name__)
 
@@ -39,14 +44,28 @@ def submit():
 
     content_id = str(uuid.uuid4())
 
+    llm_score = llm_detector(text)
+
+    heuristic_score = heuristic_detector(text)
+
+    confidence = combine_scores(
+            llm_score,
+            heuristic_score
+    )
+
+    attribution, label = generate_label(confidence)
+
     entry = {
-    "content_id": content_id,
-    "creator_id": creator_id,
-    "timestamp": datetime.utcnow().isoformat(),
-    "attribution": "unknown",
-    "confidence": 0.50,
-    "status": "classified"
-}
+            "content_id": content_id,
+            "creator_id": creator_id,
+            "timestamp": datetime.utcnow().isoformat(),
+            "llm_score": llm_score,
+            "heuristic_score": heuristic_score,
+            "confidence": confidence,
+            "attribution": attribution,
+            "label": label,
+            "status": "classified"
+    }
 
     add_entry(entry)
 
