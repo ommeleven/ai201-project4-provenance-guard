@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from audit import add_entry, load_log
+from datetime import datetime
 import uuid
 
 app = Flask(__name__)
@@ -36,13 +38,18 @@ def submit():
 
     content_id = str(uuid.uuid4())
 
-    return jsonify({
-        "content_id": content_id,
-        "creator_id": creator_id,
-        "attribution": "unknown",
-        "confidence": 0.50,
-        "label": "Placeholder label"
-    })
+    entry = {
+    "content_id": content_id,
+    "creator_id": creator_id,
+    "timestamp": datetime.utcnow().isoformat(),
+    "attribution": "unknown",
+    "confidence": 0.50,
+    "status": "classified"
+}
+
+    add_entry(entry)
+
+    return jsonify(entry)
 
 
 if __name__ == "__main__":
