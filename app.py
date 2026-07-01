@@ -24,6 +24,7 @@ def home():
 
 @app.route("/submit", methods=["POST"])
 @limiter.limit("10 per minute;100 per day")
+
 def submit():
 
     data = request.get_json()
@@ -50,6 +51,12 @@ def submit():
     add_entry(entry)
 
     return jsonify(entry)
+
+@app.route("/log", methods=["GET"])
+def log():
+    return jsonify({
+        "entries": load_log()
+    })
 
 
 if __name__ == "__main__":
