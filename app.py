@@ -76,7 +76,26 @@ def log():
     return jsonify({
         "entries": load_log()
     })
+@app.route("/appeal", methods=["POST"])
+def appeal():
 
+    data = request.get_json()
+
+    content_id = data.get("content_id")
+    creator_reasoning = data.get("creator_reasoning")
+
+    if not content_id or not creator_reasoning:
+        return jsonify({
+            "error": "content_id and creator_reasoning are required"
+        }), 400
+
+    update_entry(content_id, creator_reasoning)
+
+    return jsonify({
+        "message": "Appeal received.",
+        "content_id": content_id,
+        "status": "under_review"
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
