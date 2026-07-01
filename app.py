@@ -76,6 +76,7 @@ def log():
     return jsonify({
         "entries": load_log()
     })
+
 @app.route("/appeal", methods=["POST"])
 def appeal():
 
